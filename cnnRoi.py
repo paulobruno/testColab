@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from google.colab import files
 from cnn_model_fn import cnn_model_fn
 
 import numpy as np
@@ -19,19 +18,9 @@ def main(unused_argv):
   #eval_data = mnist.test.images  # Returns np.array
   #eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
 
-  try:
-    x = np.loadtxt('dataset.txt', dtype=int, delimiter=' ')
-  except IOError:
-    uploaded = files.upload()
-    x = np.loadtxt('dataset.txt', dtype=int, delimiter=' ')
-    
-  try:
-    y = np.loadtxt('roilist.txt', dtype=int)
-  except IOError:
-    uploaded = files.upload()
-    y = np.loadtxt('roilist.txt', dtype=int)
+  x = np.loadtxt('dataset.txt', dtype=int, delimiter=' ')
+  y = np.loadtxt('roilist.txt', dtype=int)
   
-
   # PB: aleatorizacao do conjunto completo
   y = np.reshape(y, (-1,1))
   c = np.concatenate((x,y), axis=1)
@@ -71,7 +60,7 @@ def main(unused_argv):
       shuffle=True)
   roi_classifier.train(
       input_fn=train_input_fn,
-      steps=10000)
+      steps=1000)
       #hooks=[logging_hook])
 
   # Evaluate the model and print results
@@ -83,28 +72,6 @@ def main(unused_argv):
   eval_results = roi_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
 
-  
-  # PB: classificar novos blocos
-  #filename = '105_8.tif.bmp_text.txt'
-  #try:
-  #  new_samples = np.loadtxt(filename, dtype=int, delimiter=' ')
-  #except IOError:
-  #  uploaded = files.upload()
-  #  new_samples = np.loadtxt(filename, dtype=int, delimiter=' ')
-    
-  #new_samples = new_samples.astype(float) / 255.0
-  
-  #predict_input_fn = tf.estimator.inputs.numpy_input_fn(
-  #    x={"x": new_samples},
-  #    num_epochs=1,
-  #    shuffle=False)
-
-  #predictions = list(roi_classifier.predict(input_fn=predict_input_fn))
-  #predicted_classes = [p["classes"] for p in predictions]
-
-  #print(
-  #    "New Samples, Class Predictions:    {}\n"
-  #    .format(predicted_classes))
 
 if __name__ == "__main__":
   tf.app.run()

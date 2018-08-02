@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 def cnn_model_fn(features, labels, mode):
   """Model function for CNN."""
   # Input Layer
