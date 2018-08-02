@@ -145,7 +145,7 @@ def main(unused_argv):
 
   # Create the Estimator
   roi_classifier = tf.estimator.Estimator(
-      model_fn=cnn_model_fn, model_dir="/tmp/roi_convnet_model_new")
+      model_fn=cnn_model_fn, model_dir="models/roi_convnet_model_new")
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
@@ -154,48 +154,48 @@ def main(unused_argv):
   #    tensors=tensors_to_log, every_n_iter=1000)
 
   # Train the model
-  #train_input_fn = tf.estimator.inputs.numpy_input_fn(
-  #    x={"x": train_data},
-  #    y=train_labels,
-  #    batch_size=100,
-  #    num_epochs=None,
-  #    shuffle=True)
-  #roi_classifier.train(
-  #    input_fn=train_input_fn,
-  #    steps=100000)
+  train_input_fn = tf.estimator.inputs.numpy_input_fn(
+      x={"x": train_data},
+      y=train_labels,
+      batch_size=100,
+      num_epochs=None,
+      shuffle=True)
+  roi_classifier.train(
+      input_fn=train_input_fn,
+      steps=100000)
       #hooks=[logging_hook])
 
   # Evaluate the model and print results
-  #eval_input_fn = tf.estimator.inputs.numpy_input_fn(
-  #    x={"x": eval_data},
-  #    y=eval_labels,
-  #    num_epochs=1,
-  #    shuffle=False)
-  #eval_results = roi_classifier.evaluate(input_fn=eval_input_fn)
-  #print(eval_results)
+  eval_input_fn = tf.estimator.inputs.numpy_input_fn(
+      x={"x": eval_data},
+      y=eval_labels,
+      num_epochs=1,
+      shuffle=False)
+  eval_results = roi_classifier.evaluate(input_fn=eval_input_fn)
+  print(eval_results)
 
   
   # PB: classificar novos blocos
-  filename = '105_8.tif.bmp_text.txt'
-  try:
-    new_samples = np.loadtxt(filename, dtype=int, delimiter=' ')
-  except IOError:
-    uploaded = files.upload()
-    new_samples = np.loadtxt(filename, dtype=int, delimiter=' ')
+  #filename = '105_8.tif.bmp_text.txt'
+  #try:
+  #  new_samples = np.loadtxt(filename, dtype=int, delimiter=' ')
+  #except IOError:
+  #  uploaded = files.upload()
+  #  new_samples = np.loadtxt(filename, dtype=int, delimiter=' ')
     
-  new_samples = new_samples.astype(float) / 255.0
+  #new_samples = new_samples.astype(float) / 255.0
   
-  predict_input_fn = tf.estimator.inputs.numpy_input_fn(
-      x={"x": new_samples},
-      num_epochs=1,
-      shuffle=False)
+  #predict_input_fn = tf.estimator.inputs.numpy_input_fn(
+  #    x={"x": new_samples},
+  #    num_epochs=1,
+  #    shuffle=False)
 
-  predictions = list(roi_classifier.predict(input_fn=predict_input_fn))
-  predicted_classes = [p["classes"] for p in predictions]
+  #predictions = list(roi_classifier.predict(input_fn=predict_input_fn))
+  #predicted_classes = [p["classes"] for p in predictions]
 
-  print(
-      "New Samples, Class Predictions:    {}\n"
-      .format(predicted_classes))
+  #print(
+  #    "New Samples, Class Predictions:    {}\n"
+  #    .format(predicted_classes))
 
 if __name__ == "__main__":
   tf.app.run()
