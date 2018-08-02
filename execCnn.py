@@ -7,7 +7,11 @@ from cnn_model_fn import cnn_model_fn
 import numpy as np
 import tensorflow as tf
 import sys
+import time
 
+
+start_time = time.time()
+  
 tf.logging.set_verbosity(tf.logging.INFO)
 
 
@@ -36,6 +40,8 @@ def main(unused_argv):
   predicted_classes = [p["classes"] for p in predictions]
     
   np.savetxt(filename + "_out.txt", np.transpose(predicted_classes), fmt='%d', newline=' ')
+  
+  print("--- %s seconds ---" % (time.time() - start_time))
 
 
 if __name__ == "__main__":
