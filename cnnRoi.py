@@ -162,14 +162,14 @@ def main(unused_argv):
       shuffle=True)
   roi_classifier.train(
       input_fn=train_input_fn,
-      steps=100000)
+      steps=1000)
       #hooks=[logging_hook])
 
   # Evaluate the model and print results
   eval_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": eval_data},
       y=eval_labels,
-      num_epochs=1,
+      num_epochs=100,
       shuffle=False)
   eval_results = roi_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
