@@ -34,8 +34,8 @@ def main(unused_argv):
 
   predictions = list(roi_classifier.predict(input_fn=predict_input_fn))
   predicted_classes = [p["classes"] for p in predictions]
-
-  print("New Samples, Class Predictions:    {}\n".format(predicted_classes))
+    
+  np.savetxt(filename + "_out.txt", np.transpose(predicted_classes), fmt='%d', newline=' ')
 
 
 if __name__ == "__main__":
