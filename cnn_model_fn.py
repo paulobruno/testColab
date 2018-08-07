@@ -21,7 +21,7 @@ def cnn_model_fn(features, labels, mode):
       kernel_initializer=tf.contrib.layers.xavier_initializer(),
       bias_initializer=tf.zeros_initializer())
 
-#  print('conv1: ' + str(conv1.shape))
+  print('conv1: ' + str(conv1.shape))
 
   # Pooling Layer #1
   # First max pooling layer with a 2x2 filter and stride of 2
@@ -29,7 +29,7 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 14, 14, 32]
   pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
   
-#  print('pool1: ' + str(pool1.shape))
+  print('pool1: ' + str(pool1.shape))
 
   # Convolutional Layer #2
   # Computes 64 features using a 5x5 filter.
@@ -38,14 +38,14 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 14, 14, 64]
   conv2 = tf.layers.conv2d(
       inputs=pool1,
-      filters=192,
+      filters=128,
       kernel_size=[5, 5],
       padding="same",
       activation=tf.nn.relu,
       kernel_initializer=tf.contrib.layers.xavier_initializer(),
       bias_initializer=tf.zeros_initializer())
 
-#  print('conv2: ' + str(conv2.shape))
+  print('conv2: ' + str(conv2.shape))
   
   # Pooling Layer #2
   # Second max pooling layer with a 2x2 filter and stride of 2
@@ -53,32 +53,10 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 7, 7, 64]
   pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
 
-#  print('pool2: ' + str(pool2.shape))
+  print('pool2: ' + str(pool2.shape))
   
   conv3 = tf.layers.conv2d(
       inputs=pool2,
-      filters=384,
-      kernel_size=[3, 3],
-      padding="same",
-      activation=tf.nn.relu,
-      kernel_initializer=tf.contrib.layers.xavier_initializer(),
-      bias_initializer=tf.zeros_initializer())
-      
- # print('conv3: ' + str(conv3.shape))
-  
-  conv4 = tf.layers.conv2d(
-      inputs=conv3,
-      filters=384,
-      kernel_size=[3, 3],
-      padding="same",
-      activation=tf.nn.relu,
-      kernel_initializer=tf.contrib.layers.xavier_initializer(),
-      bias_initializer=tf.zeros_initializer())
-      
- # print('conv4: ' + str(conv4.shape))
-  
-  conv5 = tf.layers.conv2d(
-      inputs=conv4,
       filters=256,
       kernel_size=[3, 3],
       padding="same",
@@ -86,32 +64,54 @@ def cnn_model_fn(features, labels, mode):
       kernel_initializer=tf.contrib.layers.xavier_initializer(),
       bias_initializer=tf.zeros_initializer())
       
-#  print('conv5: ' + str(conv5.shape))
+  print('conv3: ' + str(conv3.shape))
+  
+  conv4 = tf.layers.conv2d(
+      inputs=conv3,
+      filters=256,
+      kernel_size=[3, 3],
+      padding="same",
+      activation=tf.nn.relu,
+      kernel_initializer=tf.contrib.layers.xavier_initializer(),
+      bias_initializer=tf.zeros_initializer())
+      
+  print('conv4: ' + str(conv4.shape))
+  
+  conv5 = tf.layers.conv2d(
+      inputs=conv4,
+      filters=196,
+      kernel_size=[3, 3],
+      padding="same",
+      activation=tf.nn.relu,
+      kernel_initializer=tf.contrib.layers.xavier_initializer(),
+      bias_initializer=tf.zeros_initializer())
+      
+  print('conv5: ' + str(conv5.shape))
   
   pool5 = tf.layers.max_pooling2d(inputs=conv5, pool_size=[2, 2], strides=2)
   
-#  print('pool5: ' + str(pool5.shape))
+  print('pool5: ' + str(pool5.shape))
   
   # Flatten tensor into a batch of vectors
   # Input Tensor Shape: [batch_size, 7, 7, 64]
   # Output Tensor Shape: [batch_size, 7 * 7 * 64]
-  pool5_flat = tf.reshape(pool5, [-1, 2 * 2 * 256])
+  pool5_flat = tf.reshape(pool5, [-1, 2 * 2 * 196])
   
-#  print('pool5_flat: ' + str(pool5_flat.shape))
+  print('pool5_flat: ' + str(pool5_flat.shape))
 
   # Dense Layer
   # Densely connected layer with 1024 neurons
   # Input Tensor Shape: [batch_size, 7 * 7 * 64]
   # Output Tensor Shape: [batch_size, 1024]
-  fc6 = tf.layers.dense(inputs=pool5_flat, units=4096, activation=tf.nn.relu)
+  fc6 = tf.layers.dense(inputs=pool5_flat, units=2048, activation=tf.nn.relu)
   
-#  print('fc6: ' + str(fc6.shape))
+  print('fc6: ' + str(fc6.shape))
   
-  fc7 = tf.layers.dense(inputs=fc6, units=4096, activation=tf.nn.relu)
+  fc7 = tf.layers.dense(inputs=fc6, units=2048, activation=tf.nn.relu)
   
-#  print('fc7: ' + str(fc7.shape))
+  print('fc7: ' + str(fc7.shape))
   
-  fc8 = tf.layers.dense(inputs=fc7, units=1000, activation=tf.nn.relu)
+  fc8 = tf.layers.dense(inputs=fc7, units=512, activation=tf.nn.relu)
   
 #  print('fc8: ' + str(fc8.shape))
 
