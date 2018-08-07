@@ -27,9 +27,9 @@ def cnn_model_fn(features, labels, mode):
   # First max pooling layer with a 2x2 filter and stride of 2
   # Input Tensor Shape: [batch_size, 28, 28, 32]
   # Output Tensor Shape: [batch_size, 14, 14, 32]
-  pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
+#  pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
   
-  print('pool1: ' + str(pool1.shape))
+#  print('pool1: ' + str(pool1.shape))
 
   # Convolutional Layer #2
   # Computes 64 features using a 5x5 filter.
@@ -37,7 +37,7 @@ def cnn_model_fn(features, labels, mode):
   # Input Tensor Shape: [batch_size, 14, 14, 32]
   # Output Tensor Shape: [batch_size, 14, 14, 64]
   conv2 = tf.layers.conv2d(
-      inputs=pool1,
+      inputs=conv1,
       filters=128,
       kernel_size=[5, 5],
       padding="same",
@@ -95,7 +95,7 @@ def cnn_model_fn(features, labels, mode):
   # Flatten tensor into a batch of vectors
   # Input Tensor Shape: [batch_size, 7, 7, 64]
   # Output Tensor Shape: [batch_size, 7 * 7 * 64]
-  pool5_flat = tf.reshape(pool5, [-1, 2 * 2 * 196])
+  pool5_flat = tf.reshape(pool5, [-1, 4 * 4 * 196])
   
   print('pool5_flat: ' + str(pool5_flat.shape))
 
