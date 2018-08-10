@@ -29,6 +29,8 @@
 # Temporary Files #
 ###################
 *~
+temp*
+test*
 
 # Android ignore #
 
