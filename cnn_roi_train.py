@@ -64,7 +64,8 @@ def train():
 
         # Build a Graph that computes the logits predictions from the
         # inference model.
-        logits = cnn_roi.inference(images)
+        isTraining = True
+        logits = cnn_roi.inference(images, isTraining)
 
         # Calculate loss.
         loss = cnn_roi.loss(logits, labels)
