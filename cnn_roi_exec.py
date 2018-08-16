@@ -103,18 +103,17 @@ def eval_once(logits, saver, summary_writer, top_k_op, summary_op):
       while step < num_iter and not coord.should_stop():
         #predicted_class = tf.argmax(input=logits, axis=1)
         #predictions = sess.run(predicted_class)
-        #print(predicted_class[0])
+        #print(predictions[0], end=' ')
         predictions = sess.run([top_k_op])
-        #print(str(1) if predictions[0][0] == True else str(0), end=' ')
+        #print(predictions[0][0], end=' ')
         true_count += np.sum(predictions)
         step += 1
-      print(true_count)
-
+      
       #print()
         
       # Compute precision @ 1.
       precision = true_count / total_sample_count
-      print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
+      #print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
       summary = tf.Summary()
       summary.ParseFromString(sess.run(summary_op))
