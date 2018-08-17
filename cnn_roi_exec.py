@@ -39,15 +39,15 @@ import tensorflow as tf
 
 import cnn_roi
 import sys
+import os
 
 
-if len(sys.argv) > 2:
-#    example_file = open (sys.argv[1] , 'r')
-#    example_data = [str(line) for line in example_file]
+if len(sys.argv) > 1:
     example_data = [sys.argv[1]]
-    num_blocks = int(sys.argv[2])
+    filesize = os.stat(sys.argv[1]).st_size
+    num_blocks = int(filesize/256)
 else:
-    print ('Usage: ' + sys.argv[0] + " <example_file> <num_blocks>")
+    print ('Usage: ' + sys.argv[0] + " <example_file>")
     sys.exit()
 
 
@@ -103,7 +103,7 @@ def eval_once(logits, saver, summary_writer, summary_op):
       while step < num_iter and not coord.should_stop():
         predicted_class = tf.argmax(input=logits, axis=1)
         predictions = sess.run(predicted_class)
-        print(predictions)
+        print(" ".join(str(p) for p in predictions))
         #predictions = sess.run([top_k_op])
         #print(predictions[0][0], end=' ')
         step += 1
