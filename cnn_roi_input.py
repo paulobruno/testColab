@@ -111,8 +111,8 @@ def _generate_image_and_label_batch(image, label, min_queue_examples,
   """
   # Create a queue that shuffles the examples, and then
   # read 'batch_size' images + labels from the example queue.
+  num_preprocess_threads = 16
   if shuffle:
-    num_preprocess_threads = 16
     images, label_batch = tf.train.shuffle_batch(
         [image, label],
         batch_size=batch_size,
@@ -120,7 +120,6 @@ def _generate_image_and_label_batch(image, label, min_queue_examples,
         capacity=min_queue_examples + 1 * batch_size,
         min_after_dequeue=min_queue_examples)
   else:
-    num_preprocess_threads = 1  
     images, label_batch = tf.train.batch(
         [image, label],
         batch_size=batch_size,
@@ -250,11 +249,34 @@ def inputs(eval_data, data_dir, batch_size):
   return _generate_image_and_label_batch(float_image, read_input.label,
                                          min_queue_examples, batch_size,
                                          shuffle=False)
-        
 
-def input_example(example_data):
+def read_cnn_roi_example(filename_queue):
+  class CnnRoiExample(object):
+    pass
+  result = CnnRoiExample()
+
+  result.height = 16
+  result.width = 16
+  result.depth = 1
+  record_bytes = result.height * result.width * result.depth
+
+  reader = tf.FixedLengthRecordReader(record_bytes=record_bytes)
+  result.key, value = reader.read(filename_queue)
+
+  record_bytes = tf.decode_raw(value, tf.uint8)
+
+  # The remaining bytes after the label represent the image, which we reshape
+  # from [depth * height * width] to [depth, height, width].
+  depth_major = tf.reshape([record_bytes],
+      [result.depth, result.height, result.width])
+  # Convert from [depth, height, width] to [height, width, depth].
+  result.uint8image = tf.transpose(depth_major, [1, 2, 0])
+
+  return result
+  
+def input_example(example_data, batch_size):
   filename_queue = tf.train.string_input_producer(example_data)
-  read_input = read_cnn_roi(filename_queue)
+  read_input = read_cnn_roi_example(filename_queue)
   reshaped_image = tf.cast(read_input.uint8image, tf.float32)
 
   height = IMAGE_SIZE
@@ -263,7 +285,11 @@ def input_example(example_data):
   float_image = tf.image.per_image_standardization(reshaped_image)
 
   float_image.set_shape([height, width, 1])
-  read_input.label.set_shape([1])
+  
+  images = tf.train.batch(
+    [float_image],
+    batch_size=batch_size,
+    num_threads=1,
+    capacity=batch_size)
 
-  return _generate_image_and_label_batch(float_image, read_input.label,
-                                         0, 1, shuffle=False)
+  return images

@@ -168,12 +168,11 @@ def inputs(eval_data):
   return images, labels
 
 
-def input_example(example_data):                                         
-  images, labels = cnn_roi_input.input_example(example_data=example_data)
+def input_example(example_data, batch_size):                                         
+  images = cnn_roi_input.input_example(example_data=example_data, batch_size=batch_size)
   if FLAGS.use_fp16:
     images = tf.cast(images, tf.float16)
-    labels = tf.cast(labels, tf.float16)
-  return images, labels
+  return images
 
 
 def inference(images, isTraining):

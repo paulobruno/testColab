@@ -45,7 +45,7 @@ if len(sys.argv) > 2:
 #    example_file = open (sys.argv[1] , 'r')
 #    example_data = [str(line) for line in example_file]
     example_data = [sys.argv[1]]
-    num_blocks = sys.argv[2]
+    num_blocks = int(sys.argv[2])
 else:
     print ('Usage: ' + sys.argv[0] + " <example_file> <num_blocks>")
     sys.exit()
@@ -61,13 +61,13 @@ tf.app.flags.DEFINE_string('checkpoint_dir', 'cnn_roi_train',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
                             """How often to run the eval.""")
-tf.app.flags.DEFINE_integer('num_examples', num_blocks,
+tf.app.flags.DEFINE_integer('num_examples', 1,
                             """Number of examples to run.""")
 tf.app.flags.DEFINE_boolean('run_once', True,
                          """Whether to run eval only once.""")
 
 
-def eval_once(logits, saver, summary_writer, top_k_op, summary_op):
+def eval_once(logits, saver, summary_writer, summary_op):
   """Run Eval once.
   Args:
     saver: Saver.
@@ -101,23 +101,15 @@ def eval_once(logits, saver, summary_writer, top_k_op, summary_op):
       total_sample_count = num_iter
       step = 0
       while step < num_iter and not coord.should_stop():
-        #predicted_class = tf.argmax(input=logits, axis=1)
-        #predictions = sess.run(predicted_class)
-        #print(predictions[0], end=' ')
-        predictions = sess.run([top_k_op])
+        predicted_class = tf.argmax(input=logits, axis=1)
+        predictions = sess.run(predicted_class)
+        print(predictions)
+        #predictions = sess.run([top_k_op])
         #print(predictions[0][0], end=' ')
-        true_count += np.sum(predictions)
         step += 1
-      
-      #print()
         
-      # Compute precision @ 1.
-      precision = true_count / total_sample_count
-      #print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
-
       summary = tf.Summary()
       summary.ParseFromString(sess.run(summary_op))
-      summary.value.add(tag='Precision @ 1', simple_value=precision)
       summary_writer.add_summary(summary, global_step)
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
@@ -130,16 +122,12 @@ def evaluate(example_data):
   """Eval CIFAR-10 for a number of steps."""
   with tf.Graph().as_default() as g:
     # Get images and labels for CIFAR-10.
-    eval_data = FLAGS.eval_data == 'test'
-    images, labels = cnn_roi.input_example(example_data=example_data)
+    images = cnn_roi.input_example(example_data=example_data, batch_size=num_blocks)
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
     isTraining = False
     logits = cnn_roi.inference(images, isTraining)
-
-    # Calculate predictions.
-    top_k_op = tf.nn.in_top_k(logits, labels, 1)
 
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(
@@ -152,11 +140,7 @@ def evaluate(example_data):
 
     summary_writer = tf.summary.FileWriter(FLAGS.eval_dir, g)
 
-    while True:
-      eval_once(logits, saver, summary_writer, top_k_op, summary_op)
-      if FLAGS.run_once:
-        break
-      time.sleep(FLAGS.eval_interval_secs)
+    eval_once(logits, saver, summary_writer, summary_op)
 
 
 def main(argv=None):
