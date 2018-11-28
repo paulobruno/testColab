@@ -27,12 +27,15 @@ import tensorflow as tf
 # Process images of this size. Note that this differs from the original CIFAR
 # image size of 32 x 32. If one alters this number, then the entire model
 # architecture will change and any model would need to be retrained.
-IMAGE_SIZE = 16
+IMAGE_SIZE = 8
 
 # Global constants describing the CIFAR-10 data set.
 NUM_CLASSES = 2
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 23345
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10986
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 1049400
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 524700
+
+INPUT_TRAINING_DIR = 'cnnroi_dataset_training_' + str(IMAGE_SIZE) + '.bin'
+INPUT_VALIDATION_DIR = 'cnnroi_testset_validation_' + str(IMAGE_SIZE) + '.bin'
 
 
 def read_cnn_roi(filename_queue):
@@ -62,8 +65,8 @@ def read_cnn_roi(filename_queue):
   # See http://www.cs.toronto.edu/~kriz/cifar.html for a description of the
   # input format.
   label_bytes = 1  # 2 for CIFAR-100
-  result.height = 16
-  result.width = 16
+  result.height = IMAGE_SIZE
+  result.width = IMAGE_SIZE
   result.depth = 1
   image_bytes = result.height * result.width * result.depth
   # Every record consists of a label followed by the image, with a
@@ -111,7 +114,7 @@ def _generate_image_and_label_batch(image, label, min_queue_examples,
   """
   # Create a queue that shuffles the examples, and then
   # read 'batch_size' images + labels from the example queue.
-  num_preprocess_threads = 16
+  num_preprocess_threads = IMAGE_SIZE
   if shuffle:
     images, label_batch = tf.train.shuffle_batch(
         [image, label],
@@ -207,10 +210,10 @@ def inputs(eval_data, data_dir, batch_size):
   """
   
   if not eval_data:
-    filenames = [os.path.join(data_dir, 'cnnroi_dataset.bin')]
+    filenames = [os.path.join(data_dir, INPUT_TRAINING_DIR)]
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
   else:
-    filenames = [os.path.join(data_dir, 'cnnroi_testset.bin')]
+    filenames = [os.path.join(data_dir, INPUT_VALIDATION_DIR)]
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
 
   for f in filenames:
@@ -255,8 +258,8 @@ def read_cnn_roi_example(filename_queue):
     pass
   result = CnnRoiExample()
 
-  result.height = 16
-  result.width = 16
+  result.height = IMAGE_SIZE
+  result.width = IMAGE_SIZE
   result.depth = 1
   record_bytes = result.height * result.width * result.depth
 
