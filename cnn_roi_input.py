@@ -23,19 +23,20 @@ import os
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
+import settings
 
 # Process images of this size. Note that this differs from the original CIFAR
 # image size of 32 x 32. If one alters this number, then the entire model
 # architecture will change and any model would need to be retrained.
-IMAGE_SIZE = 8
+IMAGE_SIZE = settings.IMAGE_SIZE
 
 # Global constants describing the CIFAR-10 data set.
 NUM_CLASSES = 2
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 1049400
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 524700
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = settings.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = settings.NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
 
 INPUT_TRAINING_DIR = 'cnnroi_dataset_training_' + str(IMAGE_SIZE) + '.bin'
-INPUT_VALIDATION_DIR = 'cnnroi_testset_validation_' + str(IMAGE_SIZE) + '.bin'
+INPUT_VALIDATION_DIR = 'cnnroi_dataset_testing_' + str(IMAGE_SIZE) + '.bin'
 
 
 def read_cnn_roi(filename_queue):
@@ -69,6 +70,7 @@ def read_cnn_roi(filename_queue):
   result.width = IMAGE_SIZE
   result.depth = 1
   image_bytes = result.height * result.width * result.depth
+  
   # Every record consists of a label followed by the image, with a
   # fixed number of bytes for each.
   record_bytes = label_bytes + image_bytes
@@ -144,7 +146,7 @@ def distorted_inputs(data_dir, batch_size):
     images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
-  filenames = [os.path.join(data_dir, 'cnnroi_dataset.bin')]
+  filenames = [os.path.join(data_dir, INPUT_TRAINING_DIR)]
   for f in filenames:
     if not tf.gfile.Exists(f):
       raise ValueError('Failed to find file: ' + f)
